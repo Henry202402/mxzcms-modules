@@ -1,0 +1,49 @@
+{
+  "name": "henry/mxzcms-modules",
+  "description": "Mxzcms Module management",
+  "keywords": [
+    "modules"
+  ],
+  "license": "",
+  "authors": [
+    {
+      "name": "henry",
+      "email": "822495327@qq.com",
+      "homepage": "无人小岛",
+      "role": ""
+    }
+  ],
+  "require": {
+
+  },
+  "require-dev": {
+
+  },
+  "autoload": {
+    "psr-4": {
+      "Mxzcms\\Modules\\": "src"
+    },
+    "files": [
+    ]
+  },
+  "autoload-dev": {
+
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Mxzcms\\Modules\\ModulesServiceProvider"
+      ]
+    },
+    "branch-alias": {
+    }
+  },
+  "scripts": {
+    "update-snapshots": "",
+    "test": "",
+    "test-coverage": "",
+    "pcf": ""
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
