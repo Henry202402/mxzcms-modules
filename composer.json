@@ -1,15 +1,15 @@
 {
-  "name": "henry/mxzcms-modules",
-  "description": "Mxzcms Module management",
+  "name": "Henry202402/mxzcms-modules",
+  "description": "梦小记CMS 模块化 管理包",
   "keywords": [
-    "modules"
+    "梦小记","CMS","Laravel"
   ],
   "license": "",
   "authors": [
     {
       "name": "henry",
       "email": "822495327@qq.com",
-      "homepage": "无人小岛",
+      "homepage": "梦小记CMS",
       "role": ""
     }
   ],
