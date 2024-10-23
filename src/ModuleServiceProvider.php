@@ -5,6 +5,7 @@ namespace Mxzcms\Modules;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
 use Modules\Install\Http\Controllers\InstallController;
+use Modules\Main\Libs\UPDATECMS;
 use Mxzcms\Modules\cache\CacheKey;
 
 class ModuleServiceProvider extends ServiceProvider {
@@ -26,16 +27,17 @@ class ModuleServiceProvider extends ServiceProvider {
             if (count($dataList) != (count(Cache::get($pluginsActive) ?: []) + count(Cache::get($modulesActive) ?: []))) {
                 Cache::delete($pluginsActive);
                 Cache::delete($modulesActive);
+                call_user_func(array( new UPDATECMS(), "statistic"),array('identification' => 'cms'));
                 foreach ($dataList as $value) {
                     if ($value['cloud_type'] == \Modules\Main\Models\Modules::Plugin) {
-                        Cache::put($pluginsActive, array_merge(Cache::get($pluginsActive) ?: [], array(strtolower($value['identification']) => $value)));
+                        Cache::put($pluginsActive, array_merge(Cache::get($pluginsActive) ?: [], array(strtolower($value['identification']) => $value)),86400);
                     } else {
-                        Cache::put($modulesActive, array_merge(Cache::get($modulesActive) ?: [], array(strtolower($value['identification']) => $value)));
+                        Cache::put($modulesActive, array_merge(Cache::get($modulesActive) ?: [], array(strtolower($value['identification']) => $value)),86400);
                     }
                 }
             }
         } else {
-            Cache::put($modulesActive, array_merge([], array('install' => ['identification' => "Install", 'status' => 1])));
+            Cache::put($modulesActive, array_merge([], array('install' => ['identification' => "Install", 'status' => 1])),86400);
         }
 
 
