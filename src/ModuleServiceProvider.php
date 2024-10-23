@@ -23,13 +23,15 @@ class ModuleServiceProvider extends ServiceProvider {
         $pluginsActive = CacheKey::PluginsActive;
         if (InstallController::checkInstall()) {
             $dataList = \Modules\System\Services\ServiceModel::getDataBystatu() ?: [];
-            Cache::delete($pluginsActive);
-            Cache::delete($modulesActive);
-            foreach ($dataList as $value) {
-                if ($value['cloud_type'] == \Modules\Main\Models\Modules::Plugin) {
-                    Cache::put($pluginsActive, array_merge(Cache::get($pluginsActive) ?: [], array(strtolower($value['identification']) => $value)));
-                } else {
-                    Cache::put($modulesActive, array_merge(Cache::get($modulesActive) ?: [], array(strtolower($value['identification']) => $value)));
+            if (count($dataList) != (count(Cache::get($pluginsActive) ?: []) + count(Cache::get($modulesActive) ?: []))) {
+                Cache::delete($pluginsActive);
+                Cache::delete($modulesActive);
+                foreach ($dataList as $value) {
+                    if ($value['cloud_type'] == \Modules\Main\Models\Modules::Plugin) {
+                        Cache::put($pluginsActive, array_merge(Cache::get($pluginsActive) ?: [], array(strtolower($value['identification']) => $value)));
+                    } else {
+                        Cache::put($modulesActive, array_merge(Cache::get($modulesActive) ?: [], array(strtolower($value['identification']) => $value)));
+                    }
                 }
             }
         } else {
