@@ -19,7 +19,6 @@ class ModuleServiceProvider extends ServiceProvider {
      */
     public function boot() {
         //获取启用的模块
-//        if(!Cache::get(CacheKey::ModulesActvite) || !Cache::get('plugins-actvite')){
         $modulesActive = CacheKey::ModulesActive;
         $pluginsActive = CacheKey::PluginsActive;
         if (InstallController::checkInstall()) {
@@ -40,8 +39,6 @@ class ModuleServiceProvider extends ServiceProvider {
             Cache::put($modulesActive, array_merge([], array('install' => ['identification' => "Install", 'status' => 1])),86400);
         }
 
-
-//        }
         $modulesActvite = Cache::get(CacheKey::ModulesActive) ?: [];
         foreach ($modulesActvite as $item) {
             $this->registerAppProviders($item['identification']);

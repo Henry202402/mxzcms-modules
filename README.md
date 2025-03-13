@@ -1,1 +1,2 @@
 # mxzcms-modules
+是梦小记研发的一套laravel模块化管理包，旨在方便维护laravel项目和加速开发效率
