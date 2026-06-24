@@ -2,8 +2,6 @@
 
 namespace Mxzcms\Modules\session;
 
-use Illuminate\Support\Facades\Cache;
-
 class SessionKey {
 
     const AdminInfo = 'admin_info';

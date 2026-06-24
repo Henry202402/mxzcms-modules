@@ -2,8 +2,6 @@
 
 namespace Mxzcms\Modules\cache;
 
-use Illuminate\Support\Facades\Cache;
-
 class CacheKey {
 
     const ModulesActvite = 'modules-actvite';//所有模块

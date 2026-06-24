@@ -2,16 +2,10 @@
 
 namespace Mxzcms\Modules;
 
-use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
-use Modules\Main\Http\Middleware\Cors;
-use Modules\System\Models\Modules;
 use Mxzcms\Modules\cache\CacheKey;
-use Modules\Install\Http\Controllers\InstallController;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -37,11 +31,18 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map()
     {
-        foreach (Cache::get(CacheKey::ModulesActive) as $item) {
-            $this->mapAdminRoutes($item['identification']);
-            if ($item['status'] == 0) continue;
-            $this->mapApiRoutes($item['identification']);
-            $this->mapWebRoutes($item['identification']);
+        $activeModules = $this->getActiveModules();
+        foreach ($activeModules as $item) {
+            $identification = trim((string) ($item['identification'] ?? ''));
+            if ($identification === '') {
+                continue;
+            }
+            $this->mapAdminRoutes($identification);
+            if (($item['status'] ?? 0) == 0) {
+                continue;
+            }
+            $this->mapApiRoutes($identification);
+            $this->mapWebRoutes($identification);
         }
     }
 
@@ -54,10 +55,13 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes($identification)
     {
-        if(!file_exists(module_path($identification, 'Routes/web.php'))){return;}
+        $routePath = $this->modulePath($identification, 'Routes/web.php');
+        if (!$routePath || !is_file($routePath)) {
+            return;
+        }
         Route::middleware('web')
             ->namespace("Modules\\".$identification."\\Http\\Controllers")
-            ->group(module_path($identification, 'Routes/web.php'));
+            ->group($routePath);
 
     }
 
@@ -70,20 +74,59 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes($identification)
     {
-        if(!file_exists(module_path($identification, 'Routes/api.php'))){return;}
+        $routePath = $this->modulePath($identification, 'Routes/api.php');
+        if (!$routePath || !is_file($routePath)) {
+            return;
+        }
+        $middlewares = ['api'];
+        if (class_exists(\Modules\Main\Http\Middleware\Cors::class)) {
+            $middlewares[] = \Modules\Main\Http\Middleware\Cors::class;
+        }
         Route::prefix('api')
-            ->middleware(['api',Cors::class])
+            ->middleware($middlewares)
             ->namespace("Modules\\".$identification."\\Http\\Controllers")
-            ->group(module_path($identification, 'Routes/api.php'));
+            ->group($routePath);
     }
 
 
     protected function mapAdminRoutes($identification) {
-        if(!file_exists(module_path($identification, 'Routes/admin.php'))){return;}
+        $routePath = $this->modulePath($identification, 'Routes/admin.php');
+        if (!$routePath || !is_file($routePath)) {
+            return;
+        }
         Route::prefix('admin')
             ->middleware('web')
             ->namespace("Modules\\".$identification."\\Http\\Controllers")
-            ->group(module_path($identification, 'Routes/admin.php'));
+            ->group($routePath);
+    }
+
+    private function getActiveModules(): array
+    {
+        $modules = Cache::get(CacheKey::ModulesActive, []);
+        $modules = is_array($modules) ? $modules : [];
+        if (!array_key_exists('main', $modules) && function_exists('module_path')) {
+            $mainHasRoutes = collect([
+                module_path('Main', 'Routes/web.php'),
+                module_path('Main', 'Routes/admin.php'),
+                module_path('Main', 'Routes/api.php'),
+            ])->contains(function ($path) {
+                return is_string($path) && $path !== '' && is_file($path);
+            });
+            if ($mainHasRoutes) {
+                $modules = array_merge([
+                    'main' => ['identification' => 'Main', 'status' => 1],
+                ], $modules);
+            }
+        }
+        return $modules;
+    }
+
+    private function modulePath(string $identification, string $path = ''): string
+    {
+        if (!function_exists('module_path')) {
+            return '';
+        }
+        return module_path($identification, $path);
     }
 
 }

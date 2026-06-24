@@ -1,10 +1,12 @@
 {
   "name": "henry202402/mxzcms-modules",
+  "type": "library",
   "description": "梦小记CMS 模块化 管理包",
   "keywords": [
     "梦小记","CMS","Laravel"
   ],
   "license": "proprietary",
+  "homepage": "https://www.mxzcms.com",
   "authors": [
     {
       "name": "henry",
@@ -29,6 +31,10 @@
   "autoload-dev": {
 
   },
+  "support": {
+    "issues": "https://www.mxzcms.com",
+    "source": "https://www.mxzcms.com"
+  },
   "extra": {
     "laravel": {
       "providers": [
@@ -43,6 +49,9 @@
     "test": "",
     "test-coverage": "",
     "pcf": ""
+  },
+  "config": {
+    "sort-packages": true
   },
   "minimum-stability": "dev",
   "prefer-stable": true
