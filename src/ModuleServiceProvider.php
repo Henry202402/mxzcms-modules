@@ -24,6 +24,13 @@ class ModuleServiceProvider extends ServiceProvider {
             ], 86400);
         }
 
+        // Core modules such as "Main" are auto-enabled and are NOT stored in the
+        // modules table, so they never appear in the active-modules cache and the
+        // loop below would skip them. Register their translation namespaces here
+        // (RouteServiceProvider already injects "main" for routing, keep both in
+        // sync) — otherwise getTranslateByKey('main_*') returns the raw key.
+        $this->registerCoreModuleTranslations();
+
         foreach ($this->getActiveModules() as $item) {
             $identification = trim((string) ($item['identification'] ?? ''));
             if ($identification === '') {
@@ -145,6 +152,25 @@ class ModuleServiceProvider extends ServiceProvider {
     {
         $modules = Cache::get(CacheKey::ModulesActive, []);
         return is_array($modules) ? $modules : [];
+    }
+
+    /**
+     * Register translation namespaces for auto-enabled core modules (e.g. "Main")
+     * that are not stored in the modules table and therefore absent from the
+     * active-modules cache. This mirrors the core-module handling that
+     * RouteServiceProvider applies to routing.
+     */
+    protected function registerCoreModuleTranslations(): void
+    {
+        if (!function_exists('module_path')) {
+            return;
+        }
+        foreach (['Main'] as $identification) {
+            if (!is_dir($this->modulePath($identification, 'Resources/lang'))) {
+                continue;
+            }
+            $this->registerTranslations($identification);
+        }
     }
 
     private function refreshActiveCacheSafely(): void
